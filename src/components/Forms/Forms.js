@@ -1,10 +1,7 @@
-import {React, useEffect, useState} from 'react';
-import uuid from 'react-uuid';
+import {React, useState} from 'react';
 
 
 export default function Forms() {
-
-    const token = uuid();
 
     const [values, setValues] = useState({});
     const [fileName, setFileName] = useState();
@@ -18,7 +15,7 @@ export default function Forms() {
     const handleSubmit = async e => {
         e.preventDefault();
 
-        const formValues = ['username', 'address', 'port', 'address', 'folder'];
+        const formValues = ['username', 'address', 'port', 'folder', 'password'];
 
         formValues.forEach(form => {
             setValues(prev => ({
@@ -27,24 +24,16 @@ export default function Forms() {
             }))
         });
 
-        await fetch('/data', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(values)
-        })
 
         const  file = document.getElementById('dropzone-file').files[0];
         if (file) {
             const formData = new FormData();
             formData.append("file", file);
-           await fetch('/data', {
+            formData.append("info", JSON.stringify(values));
+
+            await fetch('/data', {
                method: "POST",
-               body: formData,
-               headers: {
-                   'Content-Type':'multipart/form-data'
-               }
+               body: formData
            }).then(res => {
                console.log(res);
            })
@@ -129,7 +118,7 @@ export default function Forms() {
                                             <p className="text-xs text-gray-500 dark:text-gray-400">{fileName ? fileName : '(MAX. 2 Gb)'}</p>
                                         </div>
                                         <input id="dropzone-file" type="file" className="hidden"
-                                               onChange={handleFileChange}/>
+                                               onChange={handleFileChange} required/>
                                     </label>
                                 </div>
                             </div>

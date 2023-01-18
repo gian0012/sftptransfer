@@ -16,7 +16,7 @@
     "react-bootstrap": "^2.7.0",
     "react-dom": "^18.2.0",
     "react-scripts": "^5.0.1",
-    "react-uuid": "^2.0.0"
+    "ssh2-sftp-client": "^9.0.4"
   },
   "scripts": {
     "start": "react-scripts start",
