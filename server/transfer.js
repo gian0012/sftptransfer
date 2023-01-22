@@ -1,5 +1,5 @@
 const Client = require('ssh2-sftp-client');
-
+const fs = require('fs');
 
 function transferData(transferObj) {
 
@@ -8,24 +8,30 @@ function transferData(transferObj) {
         username: transferObj.username,
         password: transferObj.password,
         port: transferObj.port,
-
+        folder: transferObj.folder,
+        file_path: transferObj.filePath,
+        file_name: transferObj.fileName
     };
-    console.log(config)
+
+    const remotePath = config.folder + '/' + config.file_name;
+    const localPath = fs.createReadStream(config.file_path);
 
     const sftp = new Client('transfer');
 
-
     sftp.connect(config)
-        .then(() => {
-            return sftp.cwd();
+        .then(() => sftp.put(localPath, remotePath))
+        .catch((err) => {
+            if (err) return console.log(err);
+
         })
-        .then(p => {
-            console.log(`Remote working directory is ${p}`);
-            return sftp.end();
+        .finally(() => {
+            fs.unlink(config.file_path, function (err) {
+                if (err) return console.log(err);
+            });
+            sftp.end()
         })
-        .catch(err => {
-            console.log(`Error: ${err.message}`);
-        });
+
+
 }
 
-module.exports = { transferData };
+module.exports = {transferData};

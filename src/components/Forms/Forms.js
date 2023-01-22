@@ -5,51 +5,59 @@ export default function Forms() {
 
     const [values, setValues] = useState({});
     const [fileName, setFileName] = useState();
+    const formValues = ['username', 'address', 'port', 'folder', 'password'];
 
-    const handleFileChange = async e => {
+    const handleChange = async e => {
         e.preventDefault();
-        const selectedFile = document.getElementById('dropzone-file').files[0];
-        setFileName(selectedFile.name)
 
+        const valueChanged = e.target.id;
+        values[valueChanged] = e.target.value
+        setValues(values)
+
+        const selectedFile = document.getElementById('dropzone-file').files[0];
+        if (selectedFile) {
+            setFileName(selectedFile.name)
+        }
+        e.stopPropagation()
     }
+
     const handleSubmit = async e => {
         e.preventDefault();
 
-        const formValues = ['username', 'address', 'port', 'folder', 'password'];
-
+        e.target.port.value = e.target.port.value ? e.target.port.value : '22';
         formValues.forEach(form => {
             setValues(prev => ({
                 ...prev,
                 [form]: e.target[form].value
             }))
+
         });
 
 
-        const  file = document.getElementById('dropzone-file').files[0];
+        const file = document.getElementById('dropzone-file').files[0];
+
         if (file) {
             const formData = new FormData();
             formData.append("file", file);
             formData.append("info", JSON.stringify(values));
 
             await fetch('/data', {
-               method: "POST",
-               body: formData
-           }).then(res => {
-               console.log(res);
-           })
+                method: "POST",
+                body: formData
+            });
         }
 
 
     }
 
     return (
-        <div>
-            <div className="w-full  content-center flex flex-col justify-center items-center">
+        <>
+            <div className="w-full  content-center flex flex-col justify-center items-center ">
 
 
                 <form onSubmit={handleSubmit} encType="multipart/form-data">
 
-                    <div className="bg-[#111827] rounded-md p-4 mt-7">
+                    <div className="bg-[#111827] rounded-md p-4 mt-7 top-50 mb-3 ">
 
                         <div className="grid md:grid-cols-2 md:gap-6">
                             <div className="mb-6">
@@ -59,7 +67,8 @@ export default function Forms() {
                                 <input type="text" id="address"
                                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                        placeholder="192.123.1.123"
-                                       required/>
+                                       required
+                                       onChange={handleChange}/>
                             </div>
                             <div className="mb-6">
                                 <label htmlFor="password"
@@ -67,7 +76,8 @@ export default function Forms() {
                                     Password</label>
                                 <input type="password" id="password"
                                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                       required/>
+                                       required
+                                       onChange={handleChange}/>
                             </div>
                         </div>
 
@@ -79,7 +89,9 @@ export default function Forms() {
                                     Username</label>
                                 <input type="text" id="username"
                                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                       placeholder="root" required/>
+                                       placeholder="root"
+                                       required
+                                       onChange={handleChange}/>
                             </div>
                             <div className="mb-6">
                                 <label htmlFor="port"
@@ -88,7 +100,9 @@ export default function Forms() {
                                 </label>
                                 <input type="number" id="port"
                                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                       placeholder="22" required/>
+                                       placeholder="22"
+                                       onChange={handleChange}
+                                />
                             </div>
                             <div className="mb-6">
                                 <label htmlFor="folder"
@@ -97,7 +111,9 @@ export default function Forms() {
                                 </label>
                                 <input type="text" id="folder"
                                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                       placeholder="/path/to/folder" required/>
+                                       placeholder="/path/to/folder"
+                                       required
+                                       onChange={handleChange}/>
                             </div>
                         </div>
 
@@ -118,21 +134,25 @@ export default function Forms() {
                                             <p className="text-xs text-gray-500 dark:text-gray-400">{fileName ? fileName : '(MAX. 2 Gb)'}</p>
                                         </div>
                                         <input id="dropzone-file" type="file" className="hidden"
-                                               onChange={handleFileChange} required/>
+                                               onChange={handleChange}
+                                               required
+                                        />
                                     </label>
                                 </div>
                             </div>
                         </div>
 
                         <button type="submit"
+                                data-modal-target="small-modal" data-modal-toggle="small-modal"
                                 className="text-white bg-sky-500/50 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit
                         </button>
                     </div>
 
 
                 </form>
+                <div className="h-[350px]"></div>
 
             </div>
-        </div>
+        </>
     )
 }

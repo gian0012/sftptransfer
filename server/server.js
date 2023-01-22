@@ -2,10 +2,12 @@ const express = require('express');
 const cors = require('cors')
 const app = express();
 const multer = require('multer')
-const transfer = require("./transfer");
+const {transferData} = require("./transfer");
+
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'uploads/')
+        cb(null, './server/uploads/');
+
     },
     filename: function (req, file, cb) {
         const originalFileName = file.originalname;
@@ -13,21 +15,20 @@ const storage = multer.diskStorage({
     }
 })
 
-const upload = multer({storage: storage})
+const upload = multer({storage: storage}).single('file')
 
 
 app.use(cors());
+app.use(express.json());
 
-app.post('/data', upload.single('file'), (req, res, next) => {
-    res.send(req.body)
-
-    console.log('1', req.file)
-    console.log('2', JSON.parse(req.body.info))
-    const transferInfo = JSON.parse(req.body.info);
-    transferInfo.filePath = req.file.destination + req.file.filename;
-
-    transfer.transferData(transferInfo)
+app.post('/data', (req, res, next) => {
+    upload(req, res, function () {
+        const transferInfo = JSON.parse(req.body.info);
+        transferInfo.filePath = req.file.destination + req.file.filename;
+        transferInfo.fileName = req.file.filename;
+        transferData(transferInfo);
+    })
 });
 
 
-app.listen(8000, () => console.log('API is running on http://localhost:8000/data'));
+app.listen(8000, () => console.log('API is running on http://localhost:8000/'));
